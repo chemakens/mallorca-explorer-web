@@ -1,0 +1,515 @@
+2  <html lang="es"> 
+        3  <head>
+        4    <meta charset="UTF-8">
+        5 -  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">           
+        5 +  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalab
+          +le=no">                                                                                               
+        6    <meta name="theme-color" content="#0077b6">
+        7 -  <title>Mallorca Explorer – Ruta SUP Cala Sant Vicenç</title>                                        
+        7 +  <meta name="apple-mobile-web-app-capable" content="yes">                                            
+        8 +  <meta name="description" content="Ruta SUP Cala Sant Vicenç · Cala Boquer · Cova Azul — Mallorca Exp
+          +lorer">                                                                                               
+        9 +  <title>Mallorca Explorer · Ruta SUP Cala Sant Vicenç</title>                                        
+       10 +                                                                                                      
+       11    <style>
+       12 +    /* ── Reset & base ──────────────────────────────────────────────── */                            
+       13      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+       14  
+       15 +    :root {                                                                                           
+       16 +      --ocean:   #0077b6;                                                                             
+       17 +      --sky:     #00b4d8;                                                                             
+       18 +      --foam:    #90e0ef;                                                                             
+       19 +      --sand:    #f8f3ec;                                                                             
+       20 +      --dark:    #0d1b2a;                                                                             
+       21 +      --mid:     #3a5068;                                                                             
+       22 +      --muted:   #7a8fa0;                                                                             
+       23 +      --white:   #ffffff;                                                                             
+       24 +      --radius:  20px;                                                                                
+       25 +    }                                                                                                 
+       26 +                                                                                                      
+       27 +    html, body {                                                                                      
+       28 +      height: 100%;                                                                                   
+       29 +      background: var(--dark);                                                                        
+       30 +    }                                                                                                 
+       31 +                                                                                                      
+       32      body {
+       12 -      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;                 
+       13 -      background: linear-gradient(160deg, #0077b6 0%, #00b4d8 60%, #90e0ef 100%);                     
+       14 -      min-height: 100vh;                                                                              
+       33 +      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,                             
+       34 +                   'Helvetica Neue', Arial, sans-serif;                                               
+       35        display: flex;
+       36        align-items: center;
+       37        justify-content: center;
+       38 +      min-height: 100vh;                                                                              
+       39        padding: 20px;
+       40 +      background:                                                                                     
+       41 +        radial-gradient(ellipse at 20% 0%,   rgba(0,180,216,.35) 0%, transparent 60%),                
+       42 +        radial-gradient(ellipse at 80% 100%,  rgba(0,119,182,.40) 0%, transparent 60%),               
+       43 +        linear-gradient(180deg, #0d1b2a 0%, #0a2236 100%);                                            
+       44 +      overflow-x: hidden;                                                                             
+       45      }
+       46  
+       47 +    /* ── Ambient wave ──────────────────────────────────────────────── */                            
+       48 +    .wave-bg {                                                                                        
+       49 +      position: fixed;                                                                                
+       50 +      bottom: -60px; left: 50%;                                                                       
+       51 +      transform: translateX(-50%);                                                                    
+       52 +      width: 140vw;                                                                                   
+       53 +      height: 260px;                                                                                  
+       54 +      background: radial-gradient(ellipse at 50% 100%, rgba(0,180,216,.18) 0%, transparent 70%);      
+       55 +      border-radius: 50%;                                                                             
+       56 +      pointer-events: none;                                                                           
+       57 +      z-index: 0;                                                                                     
+       58 +    }                                                                                                 
+       59 +                                                                                                      
+       60 +    /* ── Card ──────────────────────────────────────────────────────── */                            
+       61      .card {
+       22 -      background: #ffffff;                                                                            
+       23 -      border-radius: 24px;                                                                            
+       24 -      padding: 40px 28px 32px;                                                                        
+       25 -      max-width: 380px;                                                                               
+       62 +      position: relative;                                                                             
+       63 +      z-index: 1;                                                                                     
+       64 +      background: rgba(255,255,255,0.97);                                                             
+       65 +      backdrop-filter: blur(20px);                                                                    
+       66 +      -webkit-backdrop-filter: blur(20px);                                                            
+       67 +      border-radius: 28px;                                                                            
+       68 +      padding: 40px 28px 36px;                                                                        
+       69 +      max-width: 400px;                                                                               
+       70        width: 100%;
+       71        text-align: center;
+       28 -      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);                                                    
+       72 +      box-shadow:                                                                                     
+       73 +        0 32px 64px rgba(0,0,0,.40),                                                                  
+       74 +        0  0   0  1px rgba(255,255,255,.06) inset;                                                    
+       75      }
+       76  
+       31 -    .icon { font-size: 64px; line-height: 1; margin-bottom: 20px; }                                   
+       77 +    /* ── Brand pill ────────────────────────────────────────────────── */                            
+       78 +    .brand {                                                                                          
+       79 +      display: inline-flex;                                                                           
+       80 +      align-items: center;                                                                            
+       81 +      gap: 6px;                                                                                       
+       82 +      background: linear-gradient(135deg, var(--ocean), var(--sky));                                  
+       83 +      color: var(--white);                                                                            
+       84 +      font-size: 10px;                                                                                
+       85 +      font-weight: 700;                                                                               
+       86 +      letter-spacing: .1em;                                                                           
+       87 +      text-transform: uppercase;                                                                      
+       88 +      padding: 5px 14px;                                                                              
+       89 +      border-radius: 20px;                                                                            
+       90 +      margin-bottom: 24px;                                                                            
+       91 +    }                                                                                                 
+       92  
+       93 +    /* ── Route icon ────────────────────────────────────────────────── */                            
+       94 +    .route-icon {                                                                                     
+       95 +      font-size: 72px;                                                                                
+       96 +      line-height: 1;                                                                                 
+       97 +      margin-bottom: 8px;                                                                             
+       98 +      display: block;                                                                                 
+       99 +      filter: drop-shadow(0 4px 12px rgba(0,119,182,.25));                                            
+      100 +    }                                                                                                 
+      101 +                                                                                                      
+      102 +    /* ── Badge ─────────────────────────────────────────────────────── */                            
+      103      .badge {
+      104        display: inline-block;
+       35 -      background: #e8f4fd;                                                                            
+       36 -      color: #0077b6;                                                                                 
+      105 +      background: #e8f6fb;                                                                            
+      106 +      color: var(--ocean);                                                                            
+      107        font-size: 11px;
+      108        font-weight: 700;
+       39 -      letter-spacing: 0.08em;                                                                         
+      109 +      letter-spacing: .06em;                                                                          
+      110        text-transform: uppercase;
+       41 -      padding: 4px 12px;                                                                              
+      111 +      padding: 5px 14px;                                                                              
+      112        border-radius: 20px;
+       43 -      margin-bottom: 14px;                                                                            
+      113 +      margin-bottom: 16px;                                                                            
+      114      }
+      115  
+      116 +    /* ── Title & subtitle ──────────────────────────────────────────── */                            
+      117      h1 {
+       47 -      font-size: 22px;                                                                                
+      118 +      font-size: 23px;                                                                                
+      119        font-weight: 800;
+       49 -      color: #0d1b2a;                                                                                 
+       50 -      margin-bottom: 8px;                                                                             
+       51 -      line-height: 1.25;                                                                              
+      120 +      color: var(--dark);                                                                             
+      121 +      line-height: 1.2;                                                                               
+      122 +      margin-bottom: 10px;                                                                            
+      123 +      letter-spacing: -.02em;                                                                         
+      124      }
+      125  
+      126      .subtitle {
+      127        font-size: 14px;
+       56 -      color: #5a6a7a;                                                                                 
+      128 +      color: var(--muted);                                                                            
+      129 +      line-height: 1.65;                                                                              
+      130        margin-bottom: 28px;
+       58 -      line-height: 1.6;                                                                               
+      131      }
+      132  
+       61 -    .route-info {                                                                                     
+       62 -      background: #f0f8ff;                                                                            
+       63 -      border-radius: 14px;                                                                            
+       64 -      padding: 14px 16px;                                                                             
+       65 -      margin-bottom: 28px;                                                                            
+       66 -      text-align: left;                                                                               
+      133 +    /* ── Info chips ────────────────────────────────────────────────── */                            
+      134 +    .chips {                                                                                          
+      135        display: flex;
+       68 -      flex-direction: column;                                                                         
+       69 -      gap: 6px;                                                                                       
+      136 +      flex-wrap: wrap;                                                                                
+      137 +      gap: 8px;                                                                                       
+      138 +      justify-content: center;                                                                        
+      139 +      margin-bottom: 32px;                                                                            
+      140      }
+      141  
+       72 -    .route-info span {                                                                                
+       73 -      font-size: 13px;                                                                                
+       74 -      color: #3a5068;                                                                                 
+       75 -      display: flex;                                                                                  
+      142 +    .chip {                                                                                           
+      143 +      background: var(--sand);                                                                        
+      144 +      color: var(--mid);                                                                              
+      145 +      font-size: 12px;                                                                                
+      146 +      font-weight: 600;                                                                               
+      147 +      padding: 6px 12px;                                                                              
+      148 +      border-radius: 10px;                                                                            
+      149 +      display: inline-flex;                                                                           
+      150        align-items: center;
+       77 -      gap: 8px;                                                                                       
+      151 +      gap: 5px;                                                                                       
+      152      }
+      153  
+       80 -    /* Spinner */                                                                                     
+       81 -    .spinner-wrap { margin-bottom: 20px; }                                                            
+       82 -    .spinner {                                                                                        
+       83 -      width: 36px;                                                                                    
+       84 -      height: 36px;                                                                                   
+       85 -      border: 3.5px solid #e0ecf5;                                                                    
+       86 -      border-top-color: #0077b6;                                                                      
+      154 +    /* ── Spinner block ─────────────────────────────────────────────── */                            
+      155 +    #loading-block {                                                                                  
+      156 +      margin-bottom: 24px;                                                                            
+      157 +      transition: opacity .3s ease;                                                                   
+      158 +    }                                                                                                 
+      159 +                                                                                                      
+      160 +    .spinner-ring {                                                                                   
+      161 +      width: 44px;                                                                                    
+      162 +      height: 44px;                                                                                   
+      163 +      border: 3.5px solid #dde8f0;                                                                    
+      164 +      border-top-color: var(--ocean);                                                                 
+      165        border-radius: 50%;
+       88 -      animation: spin 0.75s linear infinite;                                                          
+       89 -      margin: 0 auto;                                                                                 
+      166 +      animation: spin .8s linear infinite;                                                            
+      167 +      margin: 0 auto 12px;                                                                            
+      168      }
+      169 +                                                                                                      
+      170      @keyframes spin { to { transform: rotate(360deg); } }
+      171  
+       93 -    .status-text {                                                                                    
+      172 +    .loading-label {                                                                                  
+      173        font-size: 13px;
+       95 -      color: #8a9bac;                                                                                 
+       96 -      margin-bottom: 24px;                                                                            
+       97 -      min-height: 20px;                                                                               
+      174 +      color: var(--muted);                                                                            
+      175 +      line-height: 1.4;                                                                               
+      176      }
+      177  
+      100 -    /* Buttons */                                                                                     
+      178 +    /* ── Actions ───────────────────────────────────────────────────── */                            
+      179 +    #actions { display: none; }                                                                       
+      180 +                                                                                                      
+      181      .btn {
+      182        display: flex;
+      183        align-items: center;
+      184        justify-content: center;
+      105 -      gap: 8px;                                                                                       
+      185 +      gap: 10px;                                                                                      
+      186        width: 100%;
+      107 -      padding: 15px 20px;                                                                             
+      108 -      border-radius: 14px;                                                                            
+      187 +      padding: 16px 20px;                                                                             
+      188 +      border-radius: 16px;                                                                            
+      189        border: none;
+      190        font-size: 15px;
+      191        font-weight: 700;
+      192        cursor: pointer;
+      193        text-decoration: none;
+      114 -      transition: transform 0.1s, opacity 0.15s;                                                      
+      115 -      margin-bottom: 10px;                                                                            
+      194 +      transition: transform .12s ease, box-shadow .15s ease;                                          
+      195 +      -webkit-tap-highlight-color: transparent;                                                       
+      196 +      margin-bottom: 12px;                                                                            
+      197      }
+      117 -    .btn:active { transform: scale(0.97); }                                                           
+      198  
+      119 -    .btn-primary {                                                                                    
+      120 -      background: linear-gradient(135deg, #0077b6, #00b4d8);                                          
+      121 -      color: #ffffff;                                                                                 
+      122 -      box-shadow: 0 4px 16px rgba(0, 119, 182, 0.35);                                                 
+      199 +    .btn:active { transform: scale(.96); }                                                            
+      200 +                                                                                                      
+      201 +    .btn-play {                                                                                       
+      202 +      background: #01875f;                                                                            
+      203 +      color: var(--white);                                                                            
+      204 +      box-shadow: 0 6px 20px rgba(1,135,95,.35);                                                      
+      205      }
+      206  
+      125 -    .btn-secondary {                                                                                  
+      126 -      background: #f3f7fa;                                                                            
+      127 -      color: #3a5068;                                                                                 
+      207 +    .btn-play:hover { box-shadow: 0 8px 24px rgba(1,135,95,.45); }                                    
+      208 +                                                                                                      
+      209 +    .btn-manual {                                                                                     
+      210 +      background: #f0f5f9;                                                                            
+      211 +      color: var(--mid);                                                                              
+      212 +      font-weight: 600;                                                                               
+      213      }
+      214  
+      130 -    .btn[style*="display:none"], .btn[style*="display: none"] { display: none !important; }           
+      215 +    .status-msg {                                                                                     
+      216 +      font-size: 12.5px;                                                                              
+      217 +      color: var(--muted);                                                                            
+      218 +      margin-top: 4px;                                                                                
+      219 +      line-height: 1.5;                                                                               
+      220 +    }                                                                                                 
+      221  
+      222 +    /* ── Footer ────────────────────────────────────────────────────── */                            
+      223      .footer {
+      133 -      margin-top: 20px;                                                                               
+      224 +      margin-top: 28px;                                                                               
+      225 +      padding-top: 20px;                                                                              
+      226 +      border-top: 1px solid #eef2f6;                                                                  
+      227        font-size: 11px;
+      135 -      color: #b0bec5;                                                                                 
+      228 +      color: #b0bfcc;                                                                                 
+      229 +      line-height: 1.6;                                                                               
+      230      }
+      231 +                                                                                                      
+      232 +    /* ── iOS / non-Android message ──────────────────────────────────── */                           
+      233 +    #platform-note { display: none; margin-bottom: 16px; }                                            
+      234 +                                                                                                      
+      235 +    .note-box {                                                                                       
+      236 +      background: #fff8e1;                                                                            
+      237 +      border: 1px solid #ffe082;                                                                      
+      238 +      border-radius: 12px;                                                                            
+      239 +      padding: 12px 16px;                                                                             
+      240 +      font-size: 13px;                                                                                
+      241 +      color: #795548;                                                                                 
+      242 +      line-height: 1.5;                                                                               
+      243 +    }                                                                                                 
+      244    </style>
+      245  </head>
+      246  <body>
+      140 -<div class="card">                                                                                    
+      141 -  <div class="icon">🏄</div>                                                                          
+      247 +                                                                                                      
+      248 +<div class="wave-bg" aria-hidden="true"></div>                                                        
+      249 +                                                                                                      
+      250 +<main class="card" role="main">                                                                       
+      251 +                                                                                                      
+      252 +  <!-- Brand -->                                                                                      
+      253 +  <div class="brand">                                                                                 
+      254 +    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">           
+      255 +      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2
+          +.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>                                
+      256 +    </svg>                                                                                            
+      257 +    Mallorca Explorer                                                                                 
+      258 +  </div>                                                                                              
+      259 +                                                                                                      
+      260 +  <!-- Route visual -->                                                                               
+      261 +  <span class="route-icon" role="img" aria-label="Paddle surf">🏄</span>                              
+      262    <span class="badge">Ruta SUP · Norte de Mallorca</span>
+      263    <h1>Cala Sant Vicenç<br>Cala Boquer · Cova Azul</h1>
+      144 -  <p class="subtitle">Ruta de paddle surf por los acantilados del norte.<br>Abre en Mallorca Explorer 
+          -para ver condiciones del mar en tiempo real.</p>                                                      
+      264 +  <p class="subtitle">                                                                                
+      265 +    Ruta de paddle surf por los acantilados del norte.<br>                                            
+      266 +    Condiciones del mar en tiempo real dentro de la app.                                              
+      267 +  </p>                                                                                                
+      268  
+      146 -  <div class="route-info">                                                                            
+      147 -    <span>📍 Salida: Cala Molins, Sant Vicenç</span>                                                  
+      148 -    <span>🛶 Dificultad: Intermedia</span>                                                            
+      149 -    <span>⏱ Duración estimada: 3–4 h</span>                                                           
+      150 -    <span>📏 Distancia: ~11 km</span>                                                                 
+      269 +  <!-- Info chips -->                                                                                 
+      270 +  <div class="chips" aria-label="Detalles de la ruta">                                                
+      271 +    <span class="chip">📍 Cala Molins, Sant Vicenç</span>                                             
+      272 +    <span class="chip">⏱ 3 – 4 h</span>                                                               
+      273 +    <span class="chip">📏 ~11 km</span>                                                               
+      274 +    <span class="chip">🌊 Dificultad media</span>                                                     
+      275    </div>
+      276  
+      153 -  <div class="spinner-wrap" id="spinner-wrap">                                                        
+      154 -    <div class="spinner"></div>                                                                       
+      277 +  <!-- Non-Android platform note -->                                                                  
+      278 +  <div id="platform-note" aria-live="polite">                                                         
+      279 +    <div class="note-box">                                                                            
+      280 +      Mallorca Explorer está disponible para <strong>Android</strong>.                                
+      281 +      Descárgala en Google Play para acceder a esta ruta.                                             
+      282 +    </div>                                                                                            
+      283    </div>
+      284  
+      157 -  <p class="status-text" id="status-text">Intentando abrir Mallorca Explorer…</p>                     
+      285 +  <!-- Spinner -->                                                                                    
+      286 +  <div id="loading-block" aria-live="polite" aria-label="Comprobando si tienes la app instalada">     
+      287 +    <div class="spinner-ring" role="status"></div>                                                    
+      288 +    <p class="loading-label">Comprobando si tienes la app instalada…</p>                              
+      289 +  </div>                                                                                              
+      290  
+      159 -  <!-- Shown after timeout if app not installed -->                                                   
+      160 -  <a id="btn-store"                                                                                   
+      161 -     href="https://play.google.com/store/apps/details?id=com.mallorca.explorer"                       
+      162 -     class="btn btn-primary"                                                                          
+      163 -     style="display:none">                                                                            
+      164 -    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76a2.03 2.03
+          - 0 0 0 2.28-.22l12.49-7.21-2.73-2.73-12.04 10.16zm-1.44-20.3C1.27 3.9 1 4.58 1 5.46v13.08c0 .88.27 1.5
+          -6.74 2l.08.07 7.33-7.33v-.17L1.74 3.46zm16.9 9.14-2.5-1.44-3.08 3.08 3.08 3.08 2.52-1.45c.72-.41.72-1.
+          -08 0-1.5l-.02.23zm-14.65 1.1 3.09-3.08L5 7.54l-.07.07c-.47.43-.74 1.11-.74 2v13.08c0 .89.27 1.57.74 2l
+          -.06.06 3.08-3.08-3.13-3.07z"/></svg>                                                                  
+      165 -    Descargar Mallorca Explorer                                                                       
+      166 -  </a>                                                                                                
+      291 +  <!-- Action buttons (hidden until fallback fires) -->                                               
+      292 +  <div id="actions" aria-live="polite">                                                               
+      293 +    <a id="btn-store"                                                                                 
+      294 +       href="https://play.google.com/store/apps/details?id=com.mallorca.explorer"                     
+      295 +       class="btn btn-play"                                                                           
+      296 +       rel="noopener noreferrer">                                                                     
+      297 +      <!-- Google Play icon -->                                                                       
+      298 +      <svg width="20" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">         
+      299 +        <path d="M3.18 23.76a2.03 2.03 0 0 0 2.28-.22l12.49-7.21-2.73-2.73-12.04 10.16zm-1.44-20.3C1.2
+          +7 3.9 1 4.58 1 5.46v13.08c0 .88.27 1.56.74 2l.08.07 7.33-7.33v-.17L1.74 3.46zm16.9 9.14-2.5-1.44-3.08 
+          +3.08 3.08 3.08 2.52-1.45c.72-.41.72-1.08 0-1.5l-.02.23zm-14.65 1.1 3.09-3.08L5 7.54l-.07.07c-.47.43-.7
+          +4 1.11-.74 2v13.08c0 .89.27 1.57.74 2l.06.06 3.08-3.08-3.13-3.07z"/>                                  
+      300 +      </svg>                                                                                          
+      301 +      Descargar en Google Play                                                                        
+      302 +    </a>                                                                                              
+      303  
+      168 -  <a id="btn-open"                                                                                    
+      169 -     href="mallorca://itinerary?itineraryId=itin-sup-4-calas-sant-vicenc"                             
+      170 -     class="btn btn-secondary"                                                                        
+      171 -     style="display:none">                                                                            
+      172 -    Abrir en la app                                                                                   
+      173 -  </a>                                                                                                
+      304 +    <a id="btn-manual"                                                                                
+      305 +       href="mallorca://itinerary?itineraryId=itin-sup-4-calas-sant-vicenc"                           
+      306 +       class="btn btn-manual">                                                                        
+      307 +      Ya tengo la app — abrir manualmente                                                             
+      308 +    </a>                                                                                              
+      309  
+      175 -  <p class="footer">Mallorca Explorer · Solo para Android</p>                                         
+      176 -</div>                                                                                                
+      310 +    <p class="status-msg" id="status-msg">                                                            
+      311 +      La app no se detectó instalada. Descárgala gratis para acceder a la ruta.                       
+      312 +    </p>                                                                                              
+      313 +  </div>                                                                                              
+      314  
+      315 +  <footer class="footer">                                                                             
+      316 +    Mallorca Explorer · Solo disponible para Android<br>                                              
+      317 +    Escanea de nuevo tras instalar para abrir la ruta directamente                                    
+      318 +  </footer>                                                                                           
+      319 +                                                                                                      
+      320 +</main>                                                                                               
+      321 +                                                                                                      
+      322  <script>
+      323    (function () {
+      180 -    var ITINERARY_ID = 'itin-sup-4-calas-sant-vicenc';                                                
+      181 -    var SCHEME_URL   = 'mallorca://itinerary?itineraryId=' + ITINERARY_ID;                            
+      182 -    var PLAY_URL     = 'https://play.google.com/store/apps/details?id=com.mallorca.explorer';         
+      183 -    var TIMEOUT_MS   = 1800;                                                                          
+      324 +    'use strict';                                                                                     
+      325  
+      326 +    /* ── Constants ────────────────────────────────────────────────── */                             
+      327 +    var SCHEME_URL  = 'mallorca://itinerary?itineraryId=itin-sup-4-calas-sant-vicenc';                
+      328 +    var TIMEOUT_MS  = 1800;                                                                           
+      329 +                                                                                                      
+      330 +    /* ── DOM refs ─────────────────────────────────────────────────── */                             
+      331 +    var loadingBlock  = document.getElementById('loading-block');                                     
+      332 +    var actions       = document.getElementById('actions');                                           
+      333 +    var platformNote  = document.getElementById('platform-note');                                     
+      334 +    var statusMsg     = document.getElementById('status-msg');                                        
+      335 +    var btnManual     = document.getElementById('btn-manual');                                        
+      336 +                                                                                                      
+      337 +    btnManual.href = SCHEME_URL;                                                                      
+      338 +                                                                                                      
+      339 +    /* ── Helpers ──────────────────────────────────────────────────── */                             
+      340      function isAndroid() {
+      341        return /android/i.test(navigator.userAgent);
+      342      }
+      343  
+      189 -    function showFallback(reason) {                                                                   
+      190 -      document.getElementById('spinner-wrap').style.display = 'none';                                 
+      191 -      document.getElementById('btn-store').style.display   = 'flex';                                  
+      192 -      document.getElementById('btn-open').style.display    = 'flex';                                  
+      193 -      document.getElementById('status-text').textContent   =                                          
+      194 -        reason || '¿No tienes la app? Descárgala gratis en Google Play.';                             
+      344 +    function showFallback(msg) {                                                                      
+      345 +      loadingBlock.style.opacity = '0';                                                               
+      346 +      setTimeout(function () { loadingBlock.style.display = 'none'; }, 300);                          
+      347 +      actions.style.display = 'block';                                                                
+      348 +      if (msg) statusMsg.textContent = msg;                                                           
+      349      }
+      350  
+      351 +    /* ── Non-Android ──────────────────────────────────────────────── */                             
+      352      if (!isAndroid()) {
+      198 -      showFallback('Mallorca Explorer está disponible para Android.');                                
+      353 +      loadingBlock.style.display = 'none';                                                            
+      354 +      platformNote.style.display = 'block';                                                           
+      355 +      actions.style.display      = 'block';                                                           
+      356 +      statusMsg.textContent      = 'Disponible únicamente para Android.';                             
+      357        return;
+      358      }
+      359  
+      202 -    // Try to open via custom scheme (App Links fire before this via intent filter)                   
+      203 -    var hidden  = false;                                                                              
+      204 -    var start   = Date.now();                                                                         
+      360 +    /* ── Android: attempt to open app ────────────────────────────── */                              
+      361 +    var appOpened   = false;                                                                          
+      362 +    var redirected  = false;                                                                          
+      363 +    var startTime   = Date.now();                                                                     
+      364  
+      206 -    document.addEventListener('visibilitychange', function () {                                       
+      207 -      if (document.hidden) hidden = true;                                                             
+      208 -    });                                                                                               
+      365 +    /* visibilitychange fires when the app takes over the screen */                                   
+      366 +    function onVisibilityChange() {                                                                   
+      367 +      if (document.hidden) {                                                                          
+      368 +        appOpened = true;                                                                             
+      369 +        document.removeEventListener('visibilitychange', onVisibilityChange);                         
+      370 +      }                                                                                               
+      371 +    }                                                                                                 
+      372 +    document.addEventListener('visibilitychange', onVisibilityChange);                                
+      373  
+      374 +    /* Trigger scheme redirect */                                                                     
+      375      window.location.href = SCHEME_URL;
+      376 +    redirected = true;                                                                                
+      377  
+      378 +    /* Fallback timer */                                                                              
+      379      setTimeout(function () {
+      213 -      // If the page went to background, the app opened — nothing to do                               
+      214 -      if (hidden || document.hidden) return;                                                          
+      215 -      // If still here after TIMEOUT_MS, app is not installed                                         
+      216 -      if (Date.now() - start >= TIMEOUT_MS - 50) {                                                    
+      217 -        showFallback();                                                                               
+      218 -      }                                                                                               
+      380 +      document.removeEventListener('visibilitychange', onVisibilityChange);                           
+      381 +      if (appOpened || document.hidden) return; /* app opened — nothing to do */                      
+      382 +      if (Date.now() - startTime < TIMEOUT_MS - 50) return;                                           
+      383 +      showFallback('La app no se detectó instalada. Descárgala gratis para acceder a la ruta.');      
+      384      }, TIMEOUT_MS);
+      220 -  })();                                                                                               
+      385 +                                                                                                      
+      386 +  }());                                                                                               
+      387  </script>
+      388  </body>
+      389  </html>
