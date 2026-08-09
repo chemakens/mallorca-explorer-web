@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruta Acantilados de Cavall Bernat · Mallorca Explorer</title>
+    <title>Itinerario · Mallorca Explorer</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
@@ -148,6 +148,36 @@
             color: #444;
         }
 
+        .highlights {
+            background: white;
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+            margin: 16px 0;
+        }
+        .highlights h3 {
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 10px;
+        }
+        .highlights ul {
+            list-style: none;
+            padding: 0;
+        }
+        .highlights li {
+            padding: 6px 0;
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+        .highlights li:before {
+            content: "✓ ";
+            color: #00bf63;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
         hr { border: none; border-top: 1px solid #e0e0e0; margin: 20px 0; }
 
         .cta { text-align: center; padding: 10px 0; }
@@ -170,6 +200,25 @@
             font-size: 0.8rem;
             color: #aaa;
             text-align: center;
+        }
+
+        .error {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            text-align: center;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+        }
+        .error h2 { color: #d63031; margin-bottom: 10px; }
+
+        .loading {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 40px;
+            text-align: center;
+            color: #888;
         }
 
         /* ── Map ── */
@@ -198,162 +247,313 @@
 
 <body>
 
-    <!-- Carousel -->
-    <div class="carousel" id="carousel">
-        <div class="carousel-track" id="track">
-            <!-- slides injected by JS -->
-        </div>
-        <button class="carousel-btn prev" id="prev">&#8249;</button>
-        <button class="carousel-btn next" id="next">&#8250;</button>
-        <div class="carousel-dots" id="dots"></div>
-        <div class="carousel-counter" id="counter"></div>
-    </div>
-
-    <!-- Content -->
-    <div class="content">
-        <div class="title-block">
-            <h1>Ruta Acantilados de Cavall Bernat y Cueva Azul</h1>
-            <h2>Ruta SUP · Norte de Mallorca</h2>
-        </div>
-
-        <div class="tags">
-            <span class="tag">🏄 SUP</span>
-            <span class="tag">🏖️ Costa</span>
-            <span class="tag">🧗 Acantilados</span>
-            <span class="tag">🟦 Cueva Azul</span>
-        </div>
-
-        <div class="stats">
-            <div class="stat">
-                <div class="label">Distancia</div>
-                <div class="value">~11 km</div>
-            </div>
-            <div class="stat">
-                <div class="label">Duración</div>
-                <div class="value">3 – 4 h</div>
-            </div>
-            <div class="stat">
-                <div class="label">Dificultad</div>
-                <div class="value">🌊 Media</div>
-            </div>
-            <div class="stat">
-                <div class="label">Inicio</div>
-                <div class="value">Cala Molins</div>
-            </div>
-        </div>
-
-        <div class="description">
-            Ruta de paddle surf por los espectaculares acantilados del norte de Mallorca. Desde Cala Sant Vicenç atraviesa Cala Bóquer hasta los imponentes acantilados de Cavall Bernat, terminando en la mágica Cueva Azul.
-        </div>
-
-        <div class="map-section">
-            <h3>Recorrido de la ruta</h3>
-            <div id="map"></div>
-        </div>
-
-        <hr>
-
-        <div class="cta">
-            <p><strong>Abre esta ruta en Mallorca Explorer</strong></p>
-            <a href="https://play.google.com/store" class="btn btn-primary">Descargar en Google Play</a>
-            <a href="mallorca://itinerary?itineraryId=itin-sup-4-calas-sant-vicenc" class="btn btn-secondary">Abrir en la app</a>
-            <p class="note">Mallorca Explorer · Solo disponible para Android</p>
-        </div>
+    <div id="app">
+        <div class="loading">Cargando itinerario...</div>
     </div>
 
     <script>
-        const BASE = '../images/';
-        const photos = [
-            'itin-sup-cavall-bernat-g1.jpg',
-            'itin-sup-cavall-bernat-g2.jpg',
-            'itin-sup-cavall-bernat-g3.jpg',
-            'itin-sup-cavall-bernat-g4.jpg',
-            'itin-sup-cavall-bernat-g5.jpg',
-            'itin-sup-cavall-bernat-g6.jpg',
-            'itin-sup-cavall-bernat-g7.jpg',
-            'itin-sup-cavall-bernat-g8.jpg',
-            'itin-sup-cavall-bernat-g9.jpg',
-            'itin-sup-cavall-bernat-g10.jpg',
-        ];
+        // Get itineraryId from URL parameter
+        const params = new URLSearchParams(window.location.search);
+        const itineraryId = params.get('itineraryId');
 
-        const track = document.getElementById('track');
-        const dotsEl = document.getElementById('dots');
-        const counter = document.getElementById('counter');
-        let current = 0;
-
-        // Build slides
-        photos.forEach((src, i) => {
-            const slide = document.createElement('div');
-            slide.className = 'carousel-slide';
-            const img = document.createElement('img');
-            img.src = BASE + src;
-            img.alt = `Foto ${i + 1}`;
-            img.loading = i === 0 ? 'eager' : 'lazy';
-            slide.appendChild(img);
-            track.appendChild(slide);
-
-            const dot = document.createElement('div');
-            dot.className = 'dot' + (i === 0 ? ' active' : '');
-            dot.addEventListener('click', () => goTo(i));
-            dotsEl.appendChild(dot);
-        });
-
-        function updateUI() {
-            track.style.transform = `translateX(-${current * 100}%)`;
-            document.querySelectorAll('.dot').forEach((d, i) =>
-                d.classList.toggle('active', i === current));
-            counter.textContent = `${current + 1} / ${photos.length}`;
+        if (!itineraryId) {
+            document.getElementById('app').innerHTML = `
+                <div class="error">
+                    <h2>⚠️ Itinerario no especificado</h2>
+                    <p>Falta el parámetro <code>itineraryId</code> en la URL.</p>
+                </div>
+            `;
+        } else {
+            loadItinerary(itineraryId);
         }
 
-        function goTo(n) {
-            current = (n + photos.length) % photos.length;
+        async function loadItinerary(id) {
+            try {
+                const response = await fetch('../seed_data.json');
+                const data = await response.json();
+
+                const itinerary = data.itineraries.find(i => i.id === id);
+
+                if (!itinerary) {
+                    document.getElementById('app').innerHTML = `
+                        <div class="error">
+                            <h2>❌ Itinerario no encontrado</h2>
+                            <p>No se encontró el itinerario con ID: <strong>${id}</strong></p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                renderItinerary(itinerary);
+            } catch (error) {
+                document.getElementById('app').innerHTML = `
+                    <div class="error">
+                        <h2>❌ Error al cargar</h2>
+                        <p>No se pudo cargar el itinerario. Error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderItinerary(itin) {
+            document.title = `${itin.title} · Mallorca Explorer`;
+
+            // Build photo URLs
+            const photos = [];
+            if (itin.cover_photo_url) {
+                const coverUrl = itin.cover_photo_url.replace('asset://', '../images/');
+                photos.push(coverUrl);
+            }
+            if (itin.gallery_photos_json) {
+                try {
+                    const gallery = JSON.parse(itin.gallery_photos_json);
+                    gallery.forEach(item => {
+                        const url = (typeof item === 'string' ? item : item.url).replace('asset://', '../images/');
+                        photos.push(url);
+                    });
+                } catch (e) {
+                    console.error('Error parsing gallery photos:', e);
+                }
+            }
+
+            // Build tags
+            const tags = [];
+            if (itin.category) tags.push(getCategoryEmoji(itin.category) + ' ' + itin.category);
+            if (itin.tags_json) {
+                try {
+                    const tagList = JSON.parse(itin.tags_json);
+                    tagList.forEach(t => tags.push(t));
+                } catch (e) {}
+            }
+
+            // Build highlights
+            let highlightsHTML = '';
+            if (itin.highlights_json) {
+                try {
+                    const highlights = JSON.parse(itin.highlights_json);
+                    if (highlights.length > 0) {
+                        highlightsHTML = `
+                            <div class="highlights">
+                                <h3>Lo destacado</h3>
+                                <ul>
+                                    ${highlights.map(h => `<li>${h}</li>`).join('')}
+                                </ul>
+                            </div>
+                        `;
+                    }
+                } catch (e) {}
+            }
+
+            // Build waypoints for map
+            const waypoints = [];
+            if (itin.route_waypoints) {
+                try {
+                    const wpList = typeof itin.route_waypoints === 'string'
+                        ? JSON.parse(itin.route_waypoints)
+                        : itin.route_waypoints;
+                    wpList.forEach(wp => {
+                        waypoints.push({
+                            name: wp.name_es || wp.name,
+                            lat: wp.lat,
+                            lng: wp.lng,
+                            order: wp.order
+                        });
+                    });
+                    waypoints.sort((a, b) => a.order - b.order);
+                } catch (e) {
+                    console.error('Error parsing waypoints:', e);
+                }
+            }
+
+            const difficulty = itin.difficulty || 'Media';
+            const distance = itin.total_distance_km ? `${itin.total_distance_km} km` : 'N/A';
+            const duration = itin.duration_days ? `${itin.duration_days} día${itin.duration_days > 1 ? 's' : ''}` : 'Medio día';
+
+            // Render HTML
+            document.getElementById('app').innerHTML = `
+                <!-- Carousel -->
+                <div class="carousel" id="carousel">
+                    <div class="carousel-track" id="track"></div>
+                    ${photos.length > 1 ? `
+                        <button class="carousel-btn prev" id="prev">&#8249;</button>
+                        <button class="carousel-btn next" id="next">&#8250;</button>
+                        <div class="carousel-dots" id="dots"></div>
+                    ` : ''}
+                    ${photos.length > 1 ? '<div class="carousel-counter" id="counter"></div>' : ''}
+                </div>
+
+                <!-- Content -->
+                <div class="content">
+                    <div class="title-block">
+                        <h1>${itin.title}</h1>
+                        <h2>${itin.description}</h2>
+                    </div>
+
+                    ${tags.length > 0 ? `
+                        <div class="tags">
+                            ${tags.map(t => `<span class="tag">${t}</span>`).join('')}
+                        </div>
+                    ` : ''}
+
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="label">Distancia</div>
+                            <div class="value">${distance}</div>
+                        </div>
+                        <div class="stat">
+                            <div class="label">Duración</div>
+                            <div class="value">${duration}</div>
+                        </div>
+                        <div class="stat">
+                            <div class="label">Dificultad</div>
+                            <div class="value">${getDifficultyEmoji(difficulty)} ${difficulty}</div>
+                        </div>
+                        <div class="stat">
+                            <div class="label">Paradas</div>
+                            <div class="value">${waypoints.length > 0 ? waypoints.length : 'Varias'}</div>
+                        </div>
+                    </div>
+
+                    ${highlightsHTML}
+
+                    ${waypoints.length > 0 ? `
+                        <div class="map-section">
+                            <h3>Recorrido de la ruta</h3>
+                            <div id="map"></div>
+                        </div>
+                    ` : ''}
+
+                    <hr>
+
+                    <div class="cta">
+                        <p><strong>Abre esta ruta en Mallorca Explorer</strong></p>
+                        <a href="https://play.google.com/store/apps/details?id=com.mallorca.explorer" class="btn btn-primary">Descargar en Google Play</a>
+                        <a href="mallorca://itinerary?itineraryId=${itin.id}" class="btn btn-secondary">Abrir en la app</a>
+                        <p class="note">Mallorca Explorer · Solo disponible para Android</p>
+                    </div>
+                </div>
+            `;
+
+            // Initialize carousel
+            if (photos.length > 0) {
+                initCarousel(photos);
+            }
+
+            // Initialize map
+            if (waypoints.length > 0) {
+                setTimeout(() => initMap(waypoints), 100);
+            }
+        }
+
+        function initCarousel(photos) {
+            const track = document.getElementById('track');
+            const dotsEl = document.getElementById('dots');
+            const counter = document.getElementById('counter');
+            let current = 0;
+
+            // Build slides
+            photos.forEach((src, i) => {
+                const slide = document.createElement('div');
+                slide.className = 'carousel-slide';
+                const img = document.createElement('img');
+                img.src = src;
+                img.alt = `Foto ${i + 1}`;
+                img.loading = i === 0 ? 'eager' : 'lazy';
+                slide.appendChild(img);
+                track.appendChild(slide);
+
+                if (photos.length > 1 && dotsEl) {
+                    const dot = document.createElement('div');
+                    dot.className = 'dot' + (i === 0 ? ' active' : '');
+                    dot.addEventListener('click', () => goTo(i));
+                    dotsEl.appendChild(dot);
+                }
+            });
+
+            function updateUI() {
+                track.style.transform = `translateX(-${current * 100}%)`;
+                if (dotsEl) {
+                    document.querySelectorAll('.dot').forEach((d, i) =>
+                        d.classList.toggle('active', i === current));
+                }
+                if (counter) {
+                    counter.textContent = `${current + 1} / ${photos.length}`;
+                }
+            }
+
+            function goTo(n) {
+                current = (n + photos.length) % photos.length;
+                updateUI();
+            }
+
+            const prevBtn = document.getElementById('prev');
+            const nextBtn = document.getElementById('next');
+            if (prevBtn) prevBtn.addEventListener('click', () => goTo(current - 1));
+            if (nextBtn) nextBtn.addEventListener('click', () => goTo(current + 1));
+
+            // Swipe
+            let startX = 0;
+            const carousel = document.getElementById('carousel');
+            carousel.addEventListener('touchstart', e => startX = e.touches[0].clientX, { passive: true });
+            carousel.addEventListener('touchend', e => {
+                const dx = e.changedTouches[0].clientX - startX;
+                if (Math.abs(dx) > 40) goTo(current + (dx < 0 ? 1 : -1));
+            });
+
             updateUI();
         }
 
-        document.getElementById('prev').addEventListener('click', () => goTo(current - 1));
-        document.getElementById('next').addEventListener('click', () => goTo(current + 1));
+        function initMap(waypoints) {
+            const mapEl = document.getElementById('map');
+            if (!mapEl) return;
 
-        // Swipe
-        let startX = 0;
-        const carousel = document.getElementById('carousel');
-        carousel.addEventListener('touchstart', e => startX = e.touches[0].clientX, { passive: true });
-        carousel.addEventListener('touchend', e => {
-            const dx = e.changedTouches[0].clientX - startX;
-            if (Math.abs(dx) > 40) goTo(current + (dx < 0 ? 1 : -1));
-        });
+            const map = L.map('map', { zoomControl: true, scrollWheelZoom: false });
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap',
+                maxZoom: 17
+            }).addTo(map);
 
-        updateUI();
+            const latlngs = waypoints.map(w => [w.lat, w.lng]);
+            L.polyline(latlngs, { color: '#FF8C00', weight: 3.5, opacity: 0.9 }).addTo(map);
 
-        // ── Map ──
-        const stops = [
-            { name: 'Cala Sant Vicenç', lat: 39.9050, lng: 3.0850, num: '1' },
-            { name: 'Cala Bóquer',      lat: 39.9170, lng: 3.0760, num: '2' },
-            { name: 'Cavall Bernat',    lat: 39.9310, lng: 3.0640, num: '3' },
-            { name: 'Cueva Azul',       lat: 39.9390, lng: 3.0590, num: '4' },
-        ];
-
-        const map = L.map('map', { zoomControl: true, scrollWheelZoom: false });
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap',
-            maxZoom: 17
-        }).addTo(map);
-
-        const latlngs = stops.map(s => [s.lat, s.lng]);
-        L.polyline(latlngs, { color: '#FF8C00', weight: 3.5, opacity: 0.9 }).addTo(map);
-
-        stops.forEach(s => {
-            const icon = L.divIcon({
-                className: '',
-                html: `<div style="background:#FF8C00;color:white;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.3)">${s.num}</div>`,
-                iconSize: [24, 24],
-                iconAnchor: [12, 12],
+            waypoints.forEach((w, i) => {
+                const icon = L.divIcon({
+                    className: '',
+                    html: `<div style="background:#FF8C00;color:white;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.3)">${i + 1}</div>`,
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12],
+                });
+                L.marker([w.lat, w.lng], { icon })
+                    .addTo(map)
+                    .bindTooltip(w.name, { permanent: false, direction: 'top', className: 'stop-label' });
             });
-            L.marker([s.lat, s.lng], { icon })
-                .addTo(map)
-                .bindTooltip(s.name, { permanent: false, direction: 'top', className: 'stop-label' });
-        });
 
-        map.fitBounds(L.latLngBounds(latlngs), { padding: [30, 30] });
+            map.fitBounds(L.latLngBounds(latlngs), { padding: [30, 30] });
+        }
+
+        function getCategoryEmoji(category) {
+            const map = {
+                'SUP': '🏄',
+                'HIKING': '🥾',
+                'BEACH': '🏖️',
+                'CULTURE': '🏛️',
+                'FOOD': '🍴',
+                'NATURE': '🌿'
+            };
+            return map[category] || '📍';
+        }
+
+        function getDifficultyEmoji(difficulty) {
+            const map = {
+                'EASY': '🟢',
+                'Fácil': '🟢',
+                'MODERATE': '🟡',
+                'Media': '🟡',
+                'HARD': '🔴',
+                'Difícil': '🔴'
+            };
+            return map[difficulty] || '🟡';
+        }
     </script>
 
 </body>
