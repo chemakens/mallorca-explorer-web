@@ -358,10 +358,9 @@
                 `;
             }
 
-            // Build waypoints for map
-            // Support route_waypoints (old) and route_polyline_points (new seed format)
+            // Build named waypoints (markers)
             const waypoints = [];
-            const wpSource = itin.route_waypoints || itin.route_polyline_points;
+            const wpSource = itin.waypoints || itin.route_waypoints;
             if (wpSource) {
                 try {
                     const wpList = typeof wpSource === 'string' ? JSON.parse(wpSource) : wpSource;
@@ -377,6 +376,16 @@
                 } catch (e) {
                     console.error('Error parsing waypoints:', e);
                 }
+            }
+
+            // Build full polyline points (may have more points than named waypoints)
+            const polylinePoints = [];
+            const polySource = itin.route_polyline_points || itin.route_waypoints;
+            if (polySource) {
+                try {
+                    const pts = typeof polySource === 'string' ? JSON.parse(polySource) : polySource;
+                    pts.forEach(p => polylinePoints.push([p.lat, p.lng || p.lon]));
+                } catch (e) {}
             }
 
             const difficulty = itin.difficulty || 'Media';
@@ -430,7 +439,7 @@
 
                     ${highlightsHTML}
 
-                    ${waypoints.length > 0 ? `
+                    ${(waypoints.length > 0 || polylinePoints.length > 0) ? `
                         <div class="map-section">
                             <h3>Recorrido de la ruta</h3>
                             <div id="map"></div>
@@ -454,8 +463,8 @@
             }
 
             // Initialize map
-            if (waypoints.length > 0) {
-                setTimeout(() => initMap(waypoints), 100);
+            if (waypoints.length > 0 || polylinePoints.length > 0) {
+                setTimeout(() => initMap(waypoints, polylinePoints), 100);
             }
         }
 
@@ -517,7 +526,7 @@
             updateUI();
         }
 
-        function initMap(waypoints) {
+        function initMap(waypoints, polylinePoints) {
             const mapEl = document.getElementById('map');
             if (!mapEl) return;
 
@@ -527,22 +536,27 @@
                 maxZoom: 17
             }).addTo(map);
 
-            const latlngs = waypoints.map(w => [w.lat, w.lng]);
-            L.polyline(latlngs, { color: '#FF8C00', weight: 3.5, opacity: 0.9 }).addTo(map);
+            // Draw full route polyline
+            const routePoints = polylinePoints.length > 0 ? polylinePoints : waypoints.map(w => [w.lat, w.lng]);
+            if (routePoints.length > 0) {
+                L.polyline(routePoints, { color: '#FF8C00', weight: 4, opacity: 0.9 }).addTo(map);
+            }
 
+            // Draw named waypoint markers
             waypoints.forEach((w, i) => {
                 const icon = L.divIcon({
                     className: '',
-                    html: `<div style="background:#FF8C00;color:white;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.3)">${i + 1}</div>`,
-                    iconSize: [24, 24],
-                    iconAnchor: [12, 12],
+                    html: `<div style="background:#FF8C00;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.3)">${i + 1}</div>`,
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14],
                 });
                 L.marker([w.lat, w.lng], { icon })
                     .addTo(map)
-                    .bindTooltip(w.name, { permanent: false, direction: 'top', className: 'stop-label' });
+                    .bindTooltip(w.name, { permanent: true, direction: 'top', className: 'stop-label', offset: [0, -14] });
             });
 
-            map.fitBounds(L.latLngBounds(latlngs), { padding: [30, 30] });
+            const allPoints = routePoints.length > 0 ? routePoints : waypoints.map(w => [w.lat, w.lng]);
+            map.fitBounds(L.latLngBounds(allPoints), { padding: [40, 40] });
         }
 
         function getCategoryEmoji(category) {
