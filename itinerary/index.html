@@ -242,16 +242,65 @@
             color: #0077b6;
             white-space: nowrap;
         }
+
+        /* ── Language selector ── */
+        .lang-bar {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 1000;
+            display: flex;
+            gap: 4px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 4px 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .lang-btn {
+            border: none;
+            background: none;
+            font-size: 13px;
+            font-weight: 600;
+            color: #888;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 12px;
+            transition: all 0.15s;
+        }
+        .lang-btn.active {
+            background: #FF8C00;
+            color: white;
+        }
     </style>
 </head>
 
 <body>
+
+    <div class="lang-bar">
+        <button class="lang-btn active" onclick="setLang('es')">ES</button>
+        <button class="lang-btn" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('de')">DE</button>
+    </div>
 
     <div id="app">
         <div class="loading">Cargando itinerario...</div>
     </div>
 
     <script>
+        let currentLang = localStorage.getItem('lang') || 'es';
+        let currentItinerary = null;
+
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent === lang.toUpperCase()));
+            if (currentItinerary) renderItinerary(currentItinerary);
+        }
+
+        function t(itin, field) {
+            return itin[`${field}_${currentLang}`] || itin[`${field}_en`] || itin[field] || '';
+        }
+
         // Get itineraryId from URL parameter
         const params = new URLSearchParams(window.location.search);
         const itineraryId = params.get('itineraryId');
@@ -284,6 +333,7 @@
                     return;
                 }
 
+                currentItinerary = itinerary;
                 renderItinerary(itinerary);
             } catch (error) {
                 document.getElementById('app').innerHTML = `
@@ -342,15 +392,17 @@
                 itin.tags.forEach(t => tags.push(t));
             }
 
-            // Build highlights
+            // Build highlights (multilang)
             let highlightsHTML = '';
-            const highlightsSrc = itin.highlights_json
-                ? JSON.parse(itin.highlights_json)
-                : (Array.isArray(itin.highlights) ? itin.highlights : []);
-            if (highlightsSrc.length > 0) {
+            const highlightsSrc = itin[`highlights_${currentLang}`]
+                || itin.highlights_en
+                || (itin.highlights_json ? JSON.parse(itin.highlights_json) : null)
+                || (Array.isArray(itin.highlights) ? itin.highlights : []);
+            const uiHighlights = { es: 'Lo destacado', en: 'Highlights', de: 'Highlights' };
+            if (highlightsSrc && highlightsSrc.length > 0) {
                 highlightsHTML = `
                     <div class="highlights">
-                        <h3>Lo destacado</h3>
+                        <h3>${uiHighlights[currentLang] || 'Highlights'}</h3>
                         <ul>
                             ${highlightsSrc.map(h => `<li>${h}</li>`).join('')}
                         </ul>
@@ -390,7 +442,18 @@
 
             const difficulty = itin.difficulty || 'Media';
             const distance = itin.total_distance_km ? `${itin.total_distance_km} km` : 'N/A';
-            const duration = itin.duration_days ? `${itin.duration_days} día${itin.duration_days > 1 ? 's' : ''}` : 'Medio día';
+            const ui = {
+                es: { distance: 'Distancia', duration: 'Duración', difficulty: 'Dificultad', stops: 'Paradas', route: 'Recorrido de la ruta', cta: 'Abre esta ruta en Mallorca Explorer', download: 'Descargar en Google Play', open: 'Abrir en la app', note: 'Mallorca Explorer · Solo disponible para Android', day: 'día', days: 'días', halfday: 'Medio día' },
+                en: { distance: 'Distance', duration: 'Duration', difficulty: 'Difficulty', stops: 'Stops', route: 'Route map', cta: 'Open this route in Mallorca Explorer', download: 'Download on Google Play', open: 'Open in app', note: 'Mallorca Explorer · Android only', day: 'day', days: 'days', halfday: 'Half day' },
+                de: { distance: 'Entfernung', duration: 'Dauer', difficulty: 'Schwierigkeitsgrad', stops: 'Stationen', route: 'Routenkarte', cta: 'Route in Mallorca Explorer öffnen', download: 'Bei Google Play herunterladen', open: 'In der App öffnen', note: 'Mallorca Explorer · Nur für Android', day: 'Tag', days: 'Tage', halfday: 'Halber Tag' },
+            };
+            const L_ = ui[currentLang] || ui.es;
+            const duration = itin.duration_days
+                ? `${itin.duration_days} ${itin.duration_days > 1 ? L_.days : L_.day}`
+                : L_.halfday;
+
+            const titleText = t(itin, 'title') || itin.title;
+            const descText = t(itin, 'description') || itin.description;
 
             // Render HTML
             document.getElementById('app').innerHTML = `
@@ -408,32 +471,32 @@
                 <!-- Content -->
                 <div class="content">
                     <div class="title-block">
-                        <h1>${itin.title}</h1>
-                        <h2>${itin.description}</h2>
+                        <h1>${titleText}</h1>
+                        <h2>${descText}</h2>
                     </div>
 
                     ${tags.length > 0 ? `
                         <div class="tags">
-                            ${tags.map(t => `<span class="tag">${t}</span>`).join('')}
+                            ${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
                         </div>
                     ` : ''}
 
                     <div class="stats">
                         <div class="stat">
-                            <div class="label">Distancia</div>
+                            <div class="label">${L_.distance}</div>
                             <div class="value">${distance}</div>
                         </div>
                         <div class="stat">
-                            <div class="label">Duración</div>
+                            <div class="label">${L_.duration}</div>
                             <div class="value">${duration}</div>
                         </div>
                         <div class="stat">
-                            <div class="label">Dificultad</div>
+                            <div class="label">${L_.difficulty}</div>
                             <div class="value">${getDifficultyEmoji(difficulty)} ${difficulty}</div>
                         </div>
                         <div class="stat">
-                            <div class="label">Paradas</div>
-                            <div class="value">${waypoints.length > 0 ? waypoints.length : 'Varias'}</div>
+                            <div class="label">${L_.stops}</div>
+                            <div class="value">${waypoints.length > 0 ? waypoints.length : '—'}</div>
                         </div>
                     </div>
 
@@ -441,7 +504,7 @@
 
                     ${(waypoints.length > 0 || polylinePoints.length > 0) ? `
                         <div class="map-section">
-                            <h3>Recorrido de la ruta</h3>
+                            <h3>${L_.route}</h3>
                             <div id="map"></div>
                         </div>
                     ` : ''}
@@ -449,10 +512,10 @@
                     <hr>
 
                     <div class="cta">
-                        <p><strong>Abre esta ruta en Mallorca Explorer</strong></p>
-                        <a href="https://play.google.com/store/apps/details?id=com.mallorca.explorer" class="btn btn-primary">Descargar en Google Play</a>
-                        <a href="mallorca://itinerary?itineraryId=${itin.id}" class="btn btn-secondary">Abrir en la app</a>
-                        <p class="note">Mallorca Explorer · Solo disponible para Android</p>
+                        <p><strong>${L_.cta}</strong></p>
+                        <a href="https://play.google.com/store/apps/details?id=com.mallorca.explorer" class="btn btn-primary">${L_.download}</a>
+                        <a href="mallorca://itinerary?itineraryId=${itin.id}" class="btn btn-secondary">${L_.open}</a>
+                        <p class="note">${L_.note}</p>
                     </div>
                 </div>
             `;
