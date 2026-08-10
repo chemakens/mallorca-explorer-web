@@ -298,22 +298,36 @@
         function renderItinerary(itin) {
             document.title = `${itin.title} · Mallorca Explorer`;
 
+            // Helper: normalize asset URL for web
+            function assetUrl(url) {
+                if (!url) return null;
+                return url
+                    .replace('asset://', '../images/')
+                    .replace('file:///android_asset/images/', '../images/');
+            }
+
             // Build photo URLs
             const photos = [];
-            if (itin.cover_photo_url) {
-                const coverUrl = itin.cover_photo_url.replace('asset://', '../images/');
-                photos.push(coverUrl);
-            }
+            // Support both cover_photo_url (old) and cover (new seed format)
+            const coverSrc = itin.cover_photo_url || itin.cover;
+            if (coverSrc) photos.push(assetUrl(coverSrc));
+
+            // Support both gallery_photos_json (old) and gallery array (new seed format)
             if (itin.gallery_photos_json) {
                 try {
                     const gallery = JSON.parse(itin.gallery_photos_json);
                     gallery.forEach(item => {
-                        const url = (typeof item === 'string' ? item : item.url).replace('asset://', '../images/');
-                        photos.push(url);
+                        const u = assetUrl(typeof item === 'string' ? item : item.url);
+                        if (u) photos.push(u);
                     });
                 } catch (e) {
                     console.error('Error parsing gallery photos:', e);
                 }
+            } else if (Array.isArray(itin.gallery)) {
+                itin.gallery.forEach(item => {
+                    const u = assetUrl(typeof item === 'string' ? item : item.url);
+                    if (u) photos.push(u);
+                });
             }
 
             // Build tags
@@ -324,39 +338,39 @@
                     const tagList = JSON.parse(itin.tags_json);
                     tagList.forEach(t => tags.push(t));
                 } catch (e) {}
+            } else if (Array.isArray(itin.tags)) {
+                itin.tags.forEach(t => tags.push(t));
             }
 
             // Build highlights
             let highlightsHTML = '';
-            if (itin.highlights_json) {
-                try {
-                    const highlights = JSON.parse(itin.highlights_json);
-                    if (highlights.length > 0) {
-                        highlightsHTML = `
-                            <div class="highlights">
-                                <h3>Lo destacado</h3>
-                                <ul>
-                                    ${highlights.map(h => `<li>${h}</li>`).join('')}
-                                </ul>
-                            </div>
-                        `;
-                    }
-                } catch (e) {}
+            const highlightsSrc = itin.highlights_json
+                ? JSON.parse(itin.highlights_json)
+                : (Array.isArray(itin.highlights) ? itin.highlights : []);
+            if (highlightsSrc.length > 0) {
+                highlightsHTML = `
+                    <div class="highlights">
+                        <h3>Lo destacado</h3>
+                        <ul>
+                            ${highlightsSrc.map(h => `<li>${h}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
             }
 
             // Build waypoints for map
+            // Support route_waypoints (old) and route_polyline_points (new seed format)
             const waypoints = [];
-            if (itin.route_waypoints) {
+            const wpSource = itin.route_waypoints || itin.route_polyline_points;
+            if (wpSource) {
                 try {
-                    const wpList = typeof itin.route_waypoints === 'string'
-                        ? JSON.parse(itin.route_waypoints)
-                        : itin.route_waypoints;
-                    wpList.forEach(wp => {
+                    const wpList = typeof wpSource === 'string' ? JSON.parse(wpSource) : wpSource;
+                    wpList.forEach((wp, i) => {
                         waypoints.push({
-                            name: wp.name_es || wp.name,
+                            name: wp.name_es || wp.name || `Punto ${i + 1}`,
                             lat: wp.lat,
-                            lng: wp.lng,
-                            order: wp.order
+                            lng: wp.lng || wp.lon,
+                            order: wp.order !== undefined ? wp.order : i
                         });
                     });
                     waypoints.sort((a, b) => a.order - b.order);
