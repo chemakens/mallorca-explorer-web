@@ -6995,7 +6995,10 @@
       "tips_zh": [],
       "hidden_gem_description": "Only accessible by sea in kayak or SUP. A marine cave over 40m deep where turquoise light creates a magical effect from inside. Not suitable for people with reduced mobility or without open water experience.",
       "hidden_gem_description_es": "Solo accesible por mar en kayak o SUP. Una cueva marina de más de 40m de profundidad donde la luz turquesa crea un efecto mágico desde dentro. No apta para personas con movilidad reducida o sin experiencia en aguas abiertas.",
-      "hidden_gem_description_de": "Nur per Kajak oder SUP vom Meer aus erreichbar. Eine Meereshöhle von über 40m Tiefe, in der türkisfarbenes Licht von innen einen magischen Effekt erzeugt. Nicht geeignet für Personen mit eingeschränkter Mobilität."
+      "hidden_gem_description_de": "Nur per Kajak oder SUP vom Meer aus erreichbar. Eine Meereshöhle von über 40m Tiefe, in der türkisfarbenes Licht von innen einen magischen Effekt erzeugt. Nicht geeignet für Personen mit eingeschränkter Mobilität.",
+      "cover": "file:///android_asset/images/cueva-azul-exterior.jpg",
+      "lat": 39.9285123,
+      "lon": 3.0995516
     },
     {
       "id": "cala-en-basset",
@@ -7884,7 +7887,11 @@
           "source": "MINE",
           "heroFocalY": 0.7
         }
-      ]
+      ],
+      "cover": "file:///android_asset/images/place-cala-boquer-new.jpg",
+      "heroFocalY": 0.7,
+      "lat": 39.9290388,
+      "lon": 3.0946593
     }
   ],
   "itineraries": [
@@ -10983,7 +10990,40 @@
           "lat": 39.928644,
           "lng": 3.0966875
         }
-      ]
+      ],
+      "gallery": [
+        {
+          "url": "file:///android_asset/images/itin-sup-4-calas-sant-vicenc-2.jpg"
+        },
+        {
+          "url": "file:///android_asset/images/itin-sup-4-calas-sant-vicenc-3.jpg"
+        },
+        {
+          "url": "file:///android_asset/images/itin-sup-4-calas-sant-vicenc-4.jpg"
+        },
+        {
+          "url": "file:///android_asset/images/itin-sup-4-calas-sant-vicenc-5.jpg"
+        },
+        {
+          "url": "file:///android_asset/images/itin-sup-4-calas-sant-vicenc-6.jpg"
+        },
+        {
+          "url": "file:///android_asset/images/itin-sup-4-calas-sant-vicenc-7.jpg"
+        },
+        {
+          "url": "file:///android_asset/images/itin-sup-4-calas-sant-vicenc-8.jpg"
+        },
+        {
+          "url": "file:///android_asset/images/itin-sup-4-calas-sant-vicenc-9.jpg"
+        },
+        {
+          "url": "file:///android_asset/images/itin-sup-4-calas-sant-vicenc-10.jpg"
+        },
+        {
+          "url": "file:///android_asset/images/itin-sup-4-calas-sant-vicenc-11.jpg"
+        }
+      ],
+      "cover": "file:///android_asset/images/itin-sup-4-calas-sant-vicenc.jpg"
     }
   ],
   "events": [
@@ -12018,5 +12058,5 @@
       "valid_until": "2026-09-30"
     }
   ],
-  "CURRENT_SEED_VERSION": 135
+  "CURRENT_SEED_VERSION": 185
 }
