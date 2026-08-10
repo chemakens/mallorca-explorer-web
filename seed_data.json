@@ -11023,7 +11023,49 @@
           "url": "file:///android_asset/images/itin-sup-4-calas-sant-vicenc-11.jpg"
         }
       ],
-      "cover": "file:///android_asset/images/itin-sup-4-calas-sant-vicenc.jpg"
+      "cover": "file:///android_asset/images/itin-sup-4-calas-sant-vicenc.jpg",
+      "waypoints": [
+        {
+          "order": 1,
+          "name": "Cala Molins",
+          "name_es": "Cala Molins",
+          "description": "Inicio de la ruta",
+          "lat": 39.9201528,
+          "lng": 3.0595975
+        },
+        {
+          "order": 2,
+          "name": "Punta Negra",
+          "name_es": "Punta Negra",
+          "description": "Punta negra",
+          "lat": 39.9239414,
+          "lng": 3.0675373
+        },
+        {
+          "order": 3,
+          "name": "Cavall Bernat",
+          "name_es": "Cavall Bernat & Coves Blanques",
+          "description": "Cavall Bernat & White caves",
+          "lat": 39.9259453,
+          "lng": 3.0795214
+        },
+        {
+          "order": 4,
+          "name": "Cueva Azul",
+          "name_es": "Cueva Azul",
+          "description": "Cueva azul",
+          "lat": 39.9285123,
+          "lng": 3.0995516
+        },
+        {
+          "order": 5,
+          "name": "Cala Bóquer",
+          "name_es": "Cala Bóquer",
+          "description": "Destino final",
+          "lat": 39.9290388,
+          "lng": 3.0946593
+        }
+      ]
     }
   ],
   "events": [
